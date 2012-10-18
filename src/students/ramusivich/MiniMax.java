@@ -39,7 +39,7 @@ public class MiniMax {
 		return Find(nodeToFind, queue);
 	}
 	
-	public MiniMaxNode Find(MiniMaxNode nodeToFind, Queue<MiniMaxNode> queue)
+	private MiniMaxNode Find(MiniMaxNode nodeToFind, Queue<MiniMaxNode> queue)
 	{
 		MiniMaxNode head = queue.poll();
 		
@@ -57,8 +57,17 @@ public class MiniMax {
 		}
 	}
 	
-	public MiniMaxNode MakeBestDecision(MiniMaxNode node)
+	public enum Mode { MAX, MIN };
+	
+	public MiniMaxNode MakeBestDecision(MiniMaxNode node, double alpha, double beta, Mode mode)
 	{
+		System.out.println("\n\n***\nchecking: " + node.toString());
+		
+		List<MiniMaxNode> children = node.GetChildren();
+		for(MiniMaxNode child : children)
+			System.out.println("child: " + child.toString());
+		
+		
 		//Use reflection to determine if there is a SetVisited method
 		//This is necessary for the unit testing to test the alpha beta tree
 		try{
@@ -74,19 +83,39 @@ public class MiniMax {
 		
 		if(node.GetChildren().size() == 0)
 			return node;
-		
+
 		MiniMaxNode bestNode = new MiniMaxNode("", Double.NEGATIVE_INFINITY);
-		double alpha = Double.NEGATIVE_INFINITY;
 		
-		for(MiniMaxNode child : node.GetChildren())
+		if(mode == Mode.MAX)
 		{
-			alpha = Math.max(alpha, -(MakeBestDecision(child).GetValue()));
+			for(MiniMaxNode child : node.GetChildren())
+			{
+				alpha = Math.max(alpha, MakeBestDecision(child, alpha, beta, Mode.MIN).GetValue());
+
+				if(alpha != bestNode.GetValue())
+					bestNode = child;
 			
-			if(alpha != bestNode.GetValue())
-				bestNode = child;
+				if(beta <= alpha)
+					break;
+			}
+			
+			return bestNode;		
 		}
-		
-		return bestNode;
+		else
+		{
+			for(MiniMaxNode child : node.GetChildren())
+			{
+				beta = Math.min(beta, MakeBestDecision(child, alpha, beta, Mode.MAX).GetValue());
+				
+				if(beta != bestNode.GetValue())
+					bestNode = child;
+				
+				if(beta <= alpha)
+					break;
+			}
+			
+			return bestNode;			
+		}
 	}
 
 }

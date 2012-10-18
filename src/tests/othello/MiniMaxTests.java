@@ -25,12 +25,12 @@ public class MiniMaxTests {
 
 	 *								child3c, 9
 	 * 					child2b, 9
-	 * 								child3d, 2 -- NV
+	 * 								child3d, 2 -- Not Visited
 	 * 
 	 * 
 	 * 								child3e, 7
 	 * 					child2c, 7
-	 * 								child3f, 1 -- NV
+	 * 								child3f, 1 -- Not Visited
 	 * 
 	 * head, 5
 	 * 
@@ -46,9 +46,9 @@ public class MiniMaxTests {
 	 * 								child3j, 4
 	 * 
 	 * 
-	 * 								child3k, 9 -- NV
+	 * 								child3k, 9 -- Not Visited
 	 * 					child2f, 9
-	 * 								child3l, 1 -- NV
+	 * 								child3l, 1 -- Not Visited
 	 */
 	
 	
@@ -113,22 +113,27 @@ public class MiniMaxTests {
 		tree.SetChildren(child2a, children);
 		
 
+		children.clear();
 		children.add(new MiniMaxTestNode("child3c", 9));
 		children.add(new MiniMaxTestNode("child3d", 2));
 		tree.SetChildren(child2b, children);
 
+		children.clear();
 		children.add(new MiniMaxTestNode("child3e", 7));
 		children.add(new MiniMaxTestNode("child3f", 1));
 		tree.SetChildren(child2c, children);
 
+		children.clear();
 		children.add(new MiniMaxTestNode("child3g", 6));
 		children.add(new MiniMaxTestNode("child3h", 8));
 		tree.SetChildren(child2d, children);
 
+		children.clear();
 		children.add(new MiniMaxTestNode("child3i", 2));
 		children.add(new MiniMaxTestNode("child3j", 4));
 		tree.SetChildren(child2e, children);
 
+		children.clear();
 		children.add(new MiniMaxTestNode("child3k", 9));
 		children.add(new MiniMaxTestNode("child3l", 1));
 		tree.SetChildren(child2f, children);
@@ -181,10 +186,15 @@ public class MiniMaxTests {
 		
 		assertFalse(((MiniMaxTestNode)tree.GetHead()).WasVisited());
 		
-		MiniMaxNode result = tree.MakeBestDecision(tree.GetHead());
+		MiniMaxNode result = tree.MakeBestDecision(tree.GetHead(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, MiniMax.Mode.MAX);
 		
 		assertEquals(expectedBestDecision, result);
 		assertTrue(((MiniMaxTestNode)tree.GetHead()).WasVisited());
 		assertTrue(((MiniMaxTestNode)result).WasVisited());
+		
+		assertFalse(((MiniMaxTestNode)tree.Find(new MiniMaxTestNode("child3l", 1))).WasVisited());
+		//assertFalse(((MiniMaxTestNode)tree.Find(new MiniMaxTestNode("child3k", 9))).WasVisited());
+		assertFalse(((MiniMaxTestNode)tree.Find(new MiniMaxTestNode("child3d", 2))).WasVisited());
+		assertFalse(((MiniMaxTestNode)tree.Find(new MiniMaxTestNode("child3f", 1))).WasVisited());
 	}
 }
