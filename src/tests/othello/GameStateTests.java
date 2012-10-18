@@ -1,11 +1,14 @@
 package tests.othello;
 
 import edu.drexel.cs.ai.othello.GameState;
+
 import edu.drexel.cs.ai.othello.Square;
 import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.*;
 
 public class GameStateTests extends GameState {
 
@@ -57,11 +60,77 @@ public class GameStateTests extends GameState {
 	}
 
 	@Test
+	public void testClone() {
+		assertTrue(gameState.equals((GameState)gameState.clone()));
+	}
+
+	@Test
 	public void testEquals() {
 		assertTrue(gameState.equals(gameState));
 		assertTrue(gameState.equals(new GameState(GameState.Player.PLAYER1)));
 		
 		assertFalse(gameState.equals(new GameState(GameState.Player.PLAYER2)));
+	}
+
+	@Test
+	public void testWouldFlipUpInitialState() {
+		Square flippedSquare = gameState.wouldFlip(new Square("5e"), GameState.Player.PLAYER1, GameState.Direction.UP);
+		assertTrue(flippedSquare.equals(new Square("3e")));
+
+		flippedSquare = gameState.wouldFlip(new Square("3c"), GameState.Player.PLAYER1, GameState.Direction.RIGHT);
+		assertTrue(flippedSquare.equals(new Square("3e")));
+	}
+
+	@Test
+	public void testIsLegalMoveInitialState() {
+		assertTrue(gameState.isLegalMove(new Square("3c"), GameState.Player.PLAYER1));
+		assertFalse(gameState.isLegalMove(new Square("4c"), GameState.Player.PLAYER1));
+	}
+	
+	@Test
+	public void testGetValidMovesInitialState() {
+		List<Square> validMoves = gameState.getValidMoves();
+		
+		assertEquals(4, validMoves.size());
+
+		assertTrue(validMoves.contains((Square) new Square("5e")));
+		assertTrue(validMoves.contains((Square) new Square("4f")));
+		assertTrue(validMoves.contains((Square) new Square("3c")));
+		assertTrue(validMoves.contains((Square) new Square("2d")));
+	}
+
+	@Test
+	public void testGetScoreInitialState() {
+		assertEquals(2, gameState.getScore(GameState.Player.PLAYER1));
+	}
+	
+	@Test
+	public void testGetSuccessorsAndApplyMoveInitialState() {
+		List<GameState> successors = gameState.getSuccessors();
+		
+		assertEquals(4, successors.size());
+
+		assertTrue(successors.contains(gameState.applyMove(new Square("5e"), true)));
+		assertTrue(successors.contains(gameState.applyMove(new Square("4f"), true)));
+		assertTrue(successors.contains(gameState.applyMove(new Square("3c"), true)));
+		assertTrue(successors.contains(gameState.applyMove(new Square("2d"), true)));
+	}
+
+	@Test
+	public void testGetPreviousState() {
+		assertNull(gameState.getPreviousState());
+		
+		GameState modifiedState = gameState.applyMove(new Square("5e"), true);
+		assertTrue(modifiedState.getPreviousState().equals(gameState));
+	}
+
+	@Test
+	public void testGetPreviousMove() {
+		assertNull(gameState.getPreviousMove());
+		
+		Square move = new Square("5e");
+		GameState modifiedState = gameState.applyMove(move, true);
+		assertTrue(modifiedState.getPreviousMove().equals(move));
 	}
 
 }
