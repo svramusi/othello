@@ -4,6 +4,8 @@ import java.math.BigInteger;
 import java.util.AbstractSet;
 import java.util.HashSet;
 import java.util.Random;
+import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -14,15 +16,15 @@ import java.util.Random;
  * @author <a href="http://www.sultanik.com" target="_blank">Evan A. Sultanik</a>
  */
 public class GameState implements Cloneable {
-	private Player player;
+	private Player currentPlayer;
 	private GameState previous;
 	private Square move;
 	private Random random;
-	private HashSet<Square> validMoves1;
-	private HashSet<Square> validMoves2;
+	private List<Square> validMoves1;
+	private List<Square> validMoves2;
 	private int p1score; /* cache the scores after they're calculated for the first time */
 	private int p2score;
-	private HashSet<GameState> successors;
+	private List<GameState> successors;
 	private BigInteger hash;
 
 	/**
@@ -44,7 +46,7 @@ public class GameState implements Cloneable {
 		 */
 		EMPTY}
 
-	enum Direction {UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT}
+	public enum Direction {UP, DOWN, LEFT, RIGHT, UPLEFT, UPRIGHT, DOWNLEFT, DOWNRIGHT}
 
 	/**
 	 * An enumeration of the possible states of the game.
@@ -78,9 +80,16 @@ public class GameState implements Cloneable {
 	 */
 	public GameState() {
 		random = new Random();
+		currentPlayer = null;
 		init();
 	}
 
+	//This is necessary for the unit tests to work properly
+	public GameState(Player startingPlayer) {
+		random = new Random();
+		currentPlayer = startingPlayer;
+		init();
+	}
 
 	/**
 	 * Creates a new GameState with the initial board configuration, a
@@ -91,14 +100,18 @@ public class GameState implements Cloneable {
 		random = new Random(randomNumberGeneratorSeed);
 		init();
 	}
-
+	
 	private void init() {
 		board = new Player[8][8];
 		for(int i=0; i<8; i++)
 			for(int j=0; j<8; j++)
 				board[i][j] = Player.EMPTY;
-		player = (random.nextInt(2) == 0 ? Player.PLAYER1 : Player.PLAYER2);
-		if(player == Player.PLAYER2) {
+		
+		//Only randomly pick the starting player if the unit tests didn't set it
+		if(currentPlayer == null)
+			currentPlayer = (random.nextInt(2) == 0 ? Player.PLAYER1 : Player.PLAYER2);
+		
+		if(currentPlayer == Player.PLAYER2) {
 			board[3][3] = Player.PLAYER1;
 			board[3][4] = Player.PLAYER2;
 			board[4][3] = Player.PLAYER2;
@@ -129,7 +142,7 @@ public class GameState implements Cloneable {
 		for(int i=0; i<8; i++)
 			for(int j=0; j<8; j++)
 				gs.board[i][j] = board[i][j];
-		gs.player = player;
+		gs.currentPlayer = currentPlayer;
 		gs.previous = previous;
 		gs.move = move;
 		gs.random = random;
@@ -146,7 +159,7 @@ public class GameState implements Cloneable {
 	 * Returns the player whose turn it is to make a move.
 	 */
 	public Player getCurrentPlayer() {
-		return player;
+		return currentPlayer;
 	}
 
 	/**
@@ -181,17 +194,22 @@ public class GameState implements Cloneable {
 	/**
 	 * Returns the player that currently owns the given square.
 	 */
-	public Player getSquare(Square square) {
+	public Player getPlayer(Square square) {
 		return getSquare(square.row, square.col);
 	}
 
-	Square wouldFlip(Square move, Player player, Direction direction)
+	//THIS FUNCTIONS FINDS THE OTHER END OF THE LINE
+	//IF IT FINDS ANY EMPTY SPACE, RETURN NULL SINCE IT ISN'T CONTINUOUS
+	//IF IT FINDS THE OPPONENT, CONTINUE SINCE ITS STILL A VALID MOVE
+	//IF YOU FIND ANOTHER PIECE WHICH IS YOUR OWN, AND ISN'T THE SAME AS THE INPUT, RETURN THAT SPACE
+	public Square wouldFlip(Square move, Player player, Direction direction)
 	{
 		int row = move.row;
 		int col = move.col;
+		
 		switch(direction) {
 		case UP:
-			for(row=move.row-1; row>=0; row--) {
+			for(row=move.row-1; row>=0; row--) {				
 				if(board[row][move.col] == getOpponent(player))
 					continue;
 				else if(board[row][move.col] == Player.EMPTY)
@@ -318,7 +336,7 @@ public class GameState implements Cloneable {
 	/**
 	 * Returns all valid Moves that may be taken from this state.
 	 */
-	public AbstractSet<Square> getValidMoves() {
+	public List<Square> getValidMoves() {
 		return getValidMoves(getCurrentPlayer());
 	}
 
@@ -326,14 +344,18 @@ public class GameState implements Cloneable {
 	 * Returns all valid Moves that may be taken by
 	 * <code>player</code> from this state.
 	 */
-	public AbstractSet<Square> getValidMoves(Player player) {
-		HashSet<Square> moves = (player == Player.PLAYER1 ? validMoves1 : validMoves2);
+	public List<Square> getValidMoves(Player player) {
+		List<Square> moves = (player == Player.PLAYER1 ? validMoves1 : validMoves2);
+		
 		if(moves != null)
 			return moves;
-		moves = new HashSet<Square>();
+		
+		moves = new ArrayList<Square>();
+		
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
 				Square m = new Square(i,j);
+				
 				if(isLegalMove(m, player))
 					moves.add(m);
 			}
@@ -342,6 +364,7 @@ public class GameState implements Cloneable {
 			validMoves1 = moves;
 		else
 			validMoves2 = moves;
+		
 		return moves;
 	}
 
@@ -387,8 +410,7 @@ public class GameState implements Cloneable {
 	 * Returns the current status of the game.
 	 */
 	public GameStatus getStatus() {
-		if(getValidMoves(Player.PLAYER1).size() <= 0 &&
-				getValidMoves(Player.PLAYER2).size() <= 0) {
+		if(getValidMoves(Player.PLAYER1).size() <= 0 && getValidMoves(Player.PLAYER2).size() <= 0) {
 			int p1score = getScore(Player.PLAYER1);
 			int p2score = getScore(Player.PLAYER2);
 			if(p1score > p2score)
@@ -407,7 +429,7 @@ public class GameState implements Cloneable {
 	 *
 	 * @see #getSuccessors(boolean)
 	 */
-	public AbstractSet<GameState> getSuccessors() {
+	public List<GameState> getSuccessors() {
 		return getSuccessors(true);
 	}
 
@@ -423,11 +445,14 @@ public class GameState implements Cloneable {
 	 * @param includePreviousStateReference whether or not the returned states should have back-references to <code>this</code>.
 	 * @see #applyMove(Square, boolean)
 	 */
-	public AbstractSet<GameState> getSuccessors(boolean includePreviousStateReference) {
+	public List<GameState> getSuccessors(boolean includePreviousStateReference) {
+		
 		if(successors != null)
 			return successors;
+		
 		Square moves[] = getValidMoves().toArray(new Square[0]);
-		successors = new HashSet<GameState>(moves.length);
+		
+		successors = new ArrayList<GameState>(moves.length);
 		for(int i=0; i<moves.length; i++) {
 			try {
 				successors.add(applyMove(moves[i], includePreviousStateReference));
@@ -562,11 +587,11 @@ public class GameState implements Cloneable {
 		else
 			throw new InvalidMoveException(move, player, "This move does not flip any of the opponents' pieces!");
 
-		newState.player = getOpponent(player);
+		newState.currentPlayer = getOpponent(player);
 
 		if(newState.getValidMoves().size() <= 0)
 			/* the other player has no valid moves, so their turn is skipped */
-			newState.player = player;
+			newState.currentPlayer = player;
 
 		return newState;
 	}
@@ -631,7 +656,7 @@ public class GameState implements Cloneable {
 		if(!(o instanceof GameState))
 			return false;
 		GameState gs = (GameState)o;
-		if(gs.player != player)
+		if(gs.currentPlayer != currentPlayer)
 			return false;
 		for(int i=0; i<8; i++) {
 			for(int j=0; j<8; j++) {
@@ -663,7 +688,7 @@ public class GameState implements Cloneable {
 	 */
 	public BigInteger uniqueHashCode() {
 		if(hash == null) {
-			hash = (player == Player.PLAYER1 ? BigInteger.ZERO : BigInteger.ONE);
+			hash = (currentPlayer == Player.PLAYER1 ? BigInteger.ZERO : BigInteger.ONE);
 			int i, j, idx = 0;
 			if(multiplier == null) {
 				BigInteger three = new BigInteger("3");
