@@ -144,6 +144,22 @@ public class MiniMaxTests {
 		assertEquals(2, tree.GetChildren(tree.GetHead()).size());
 		assertEquals(tree.GetHead(), tree.GetChildren(tree.GetHead()).get(0).GetParent());
 	}
+	
+	@Test
+	public void testFindNode() {
+		MiniMaxNode searchNode = new MiniMaxNode("child2f", 0);
+		assertEquals(searchNode, tree.Find(searchNode));
+
+		searchNode = new MiniMaxNode("child3f", 1);
+		assertEquals(searchNode, tree.Find(searchNode));
+	}
+
+	
+	@Test
+	public void testFindNonExistentNode() {
+		MiniMaxNode searchNode = new MiniMaxNode("no such node", 0);
+		assertNull(tree.Find(searchNode));
+	}
 
 	@Test
 	public void testSetTwoRowsOfChildren() {

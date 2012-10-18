@@ -1,6 +1,8 @@
 package students.ramusivich;
 
 import java.util.List;
+import java.util.Queue;
+import java.util.LinkedList;
 import java.lang.reflect.*;
 
 import tests.othello.MiniMaxTests;
@@ -8,16 +10,6 @@ import tests.othello.MiniMaxTests;
 public class MiniMax {
 	
 	MiniMaxNode head;
-	
-	/*
-	 * function integer minimax(node, depth)
-    		if node is a terminal node or depth <= 0:
-        		return the heuristic value of node
-    		α = -∞
-    		for child in node:                       # evaluation is identical for both players 
-        		α = max(α, -minimax(child, depth-1))
-    		return α
-	 */
 	
 	public MiniMax(MiniMaxNode head)
 	{
@@ -37,6 +29,32 @@ public class MiniMax {
 	public List<MiniMaxNode> GetChildren(MiniMaxNode node)
 	{
 		return node.GetChildren();
+	}
+	
+	public MiniMaxNode Find(MiniMaxNode nodeToFind)
+	{
+		Queue<MiniMaxNode> queue = new LinkedList<MiniMaxNode>();
+		queue.add(head);
+		
+		return Find(nodeToFind, queue);
+	}
+	
+	public MiniMaxNode Find(MiniMaxNode nodeToFind, Queue<MiniMaxNode> queue)
+	{
+		MiniMaxNode head = queue.poll();
+		
+		if(head == null)
+			return null;
+		else if (head.equals(nodeToFind))
+			return head;
+		else
+		{
+			List<MiniMaxNode> children = head.GetChildren();
+			for(MiniMaxNode child : children)
+				queue.add(child);
+			
+			return Find(nodeToFind, queue);
+		}
 	}
 	
 	public MiniMaxNode MakeBestDecision(MiniMaxNode node)
