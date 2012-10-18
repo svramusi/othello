@@ -1,8 +1,6 @@
 package edu.drexel.cs.ai.othello;
 
 import java.math.BigInteger;
-import java.util.AbstractSet;
-import java.util.HashSet;
 import java.util.Random;
 import java.util.List;
 import java.util.ArrayList;
