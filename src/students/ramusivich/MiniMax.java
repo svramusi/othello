@@ -57,17 +57,68 @@ public class MiniMax {
 		}
 	}
 	
-	public enum Mode { MAX, MIN };
-	
-	public MiniMaxNode MakeBestDecision(MiniMaxNode node, double alpha, double beta, Mode mode)
+	public MiniMaxNode AlphaBetaSearch()
 	{
-		System.out.println("\n\n***\nchecking: " + node.toString());
+		return MaxValue(head, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+	}
+	
+	public MiniMaxNode MaxValue(MiniMaxNode node, double alpha, double beta)
+	{
+		SetVisited(node);
+
+		if(TerminalTest(node))
+			return node;
+
+		MiniMaxNode bestNode = new MiniMaxNode("", Double.NEGATIVE_INFINITY);
+		for(MiniMaxNode child : node.GetChildren())
+		{
+			MiniMaxNode minNode = MinValue(child, alpha, beta);
+			
+			if(minNode.GetValue() > bestNode.GetValue())
+				bestNode = minNode;
+			
+			if(bestNode.GetValue() >= beta)
+				return bestNode;
+			
+			alpha = Math.max(alpha, bestNode.GetValue());
+		}
 		
-		List<MiniMaxNode> children = node.GetChildren();
-		for(MiniMaxNode child : children)
-			System.out.println("child: " + child.toString());
+		MiniMaxNode returnNode = bestNode;
 		
+		//Since MiniMax always starts with max, only need to do this in MaxValue
+		if(returnNode.GetParent() != head)
+			returnNode = returnNode.GetParent();
 		
+		return returnNode;		
+	}
+
+	public MiniMaxNode MinValue(MiniMaxNode node, double alpha, double beta)
+	{
+		SetVisited(node);
+
+		if(TerminalTest(node))
+			return node;
+		
+		MiniMaxNode bestNode = new MiniMaxNode("", Double.POSITIVE_INFINITY);
+		for(MiniMaxNode child : node.GetChildren())
+		{
+			MiniMaxNode maxNode = MaxValue(child, alpha, beta);
+			
+			if(maxNode.GetValue() < bestNode.GetValue())
+				bestNode = maxNode;
+			
+			if(bestNode.GetValue() <= alpha)
+				return bestNode;
+			
+			beta = Math.min(beta, bestNode.GetValue());
+		}
+		
+		//Return parent because we need to know the next move to make, not what the ultimate best state is
+		return bestNode.GetParent();
+	}
+
+	private void SetVisited(MiniMaxNode node)
+	{
 		//Use reflection to determine if there is a SetVisited method
 		//This is necessary for the unit testing to test the alpha beta tree
 		try{
@@ -80,42 +131,13 @@ public class MiniMax {
 		} catch  (InvocationTargetException e) {
 			//System.out.println("Caught invocation target exception on " + node.toString());
 		}
-		
-		if(node.GetChildren().size() == 0)
-			return node;
-
-		MiniMaxNode bestNode = new MiniMaxNode("", Double.NEGATIVE_INFINITY);
-		
-		if(mode == Mode.MAX)
-		{
-			for(MiniMaxNode child : node.GetChildren())
-			{
-				alpha = Math.max(alpha, MakeBestDecision(child, alpha, beta, Mode.MIN).GetValue());
-
-				if(alpha != bestNode.GetValue())
-					bestNode = child;
-			
-				if(beta <= alpha)
-					break;
-			}
-			
-			return bestNode;		
-		}
-		else
-		{
-			for(MiniMaxNode child : node.GetChildren())
-			{
-				beta = Math.min(beta, MakeBestDecision(child, alpha, beta, Mode.MAX).GetValue());
-				
-				if(beta != bestNode.GetValue())
-					bestNode = child;
-				
-				if(beta <= alpha)
-					break;
-			}
-			
-			return bestNode;			
-		}
 	}
-
+	
+	public boolean TerminalTest(MiniMaxNode node)
+	{
+		if(node.GetChildren().size() == 0)
+			return true;
+		else
+			return false;
+	}
 }
