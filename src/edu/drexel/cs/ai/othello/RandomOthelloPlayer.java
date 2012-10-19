@@ -1,7 +1,6 @@
 package edu.drexel.cs.ai.othello;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * An othello-playing agent that plays at random.
@@ -20,11 +19,9 @@ public class RandomOthelloPlayer extends OthelloPlayer {
 	 * Returns a random, valid move from <code>currentState</code>.
 	 */
 	public Square getMove(GameState currentState, Date deadline) {
-		List<Square> moves = currentState.getValidMoves();
-		
-		int next = currentState.getRandom().nextInt(moves.size());
-		
-		log("Randomly moving to " + moves.get(next).toString() + "...");
-		return moves.get(next);
+		Square moves[] = currentState.getValidMoves().toArray(new Square[0]);
+		int next = currentState.getRandom().nextInt(moves.length);
+		log("Randomly moving to " + moves[next].toString() + "...");
+		return moves[next];
 	}
 }

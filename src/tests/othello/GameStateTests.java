@@ -44,9 +44,9 @@ public class GameStateTests extends GameState {
 
 	@Test
 	public void testGetPlayer() {
-		assertEquals(GameState.Player.EMPTY, gameState.getPlayer(new Square(0, 0)));
-		assertEquals(GameState.Player.PLAYER2, gameState.getPlayer(new Square(3, 3)));
-		assertEquals(GameState.Player.PLAYER1, gameState.getPlayer( new Square(3, 4)));
+		assertEquals(GameState.Player.EMPTY, gameState.getSquare(new Square(0, 0)));
+		assertEquals(GameState.Player.PLAYER2, gameState.getSquare(new Square(3, 3)));
+		assertEquals(GameState.Player.PLAYER1, gameState.getSquare( new Square(3, 4)));
 	}
 
 	@Test
@@ -89,7 +89,7 @@ public class GameStateTests extends GameState {
 	
 	@Test
 	public void testGetValidMovesInitialState() {
-		List<Square> validMoves = gameState.getValidMoves();
+		AbstractSet<Square> validMoves = gameState.getValidMoves();
 		
 		assertEquals(4, validMoves.size());
 
@@ -106,7 +106,7 @@ public class GameStateTests extends GameState {
 	
 	@Test
 	public void testGetSuccessorsAndApplyMoveInitialState() {
-		List<GameState> successors = gameState.getSuccessors();
+		AbstractSet<GameState> successors = gameState.getSuccessors();
 		
 		assertEquals(4, successors.size());
 
