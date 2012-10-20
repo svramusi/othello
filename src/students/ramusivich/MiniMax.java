@@ -1,6 +1,7 @@
 package students.ramusivich;
 
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Queue;
 import java.util.LinkedList;
 import java.lang.reflect.*;
@@ -10,10 +11,13 @@ import java.lang.reflect.*;
 public class MiniMax {
 	
 	MiniMaxNode head;
+	List<MiniMaxNode> emptyParents;
 	
 	public MiniMax(MiniMaxNode head)
 	{
 		this.head = head;
+		emptyParents = new ArrayList<MiniMaxNode>();
+		emptyParents.add(head);
 	}
 	
 	public MiniMaxNode GetHead()
@@ -21,8 +25,15 @@ public class MiniMax {
 		return head;
 	}
 	
+	public List<MiniMaxNode> GetEmptyParents()
+	{
+		return emptyParents;
+	}
+	
 	public void SetChildren(MiniMaxNode node, List<MiniMaxNode> children)
 	{
+		emptyParents.remove(node);
+		emptyParents.addAll(emptyParents.size(), children);
 		node.SetChildren(children);
 	}
 	

@@ -196,8 +196,6 @@ public class MiniMaxTests {
 		
 		assertFalse(((MiniMaxTestNode)tree.GetHead()).WasVisited());
 		
-		//MiniMaxNode result = tree.MakeBestDecision(tree.GetHead(), Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, MiniMax.Mode.MAX);
-		
 		MiniMaxNode result = tree.AlphaBetaSearch();
 		
 		assertEquals(expectedBestDecision, result);
@@ -208,5 +206,17 @@ public class MiniMaxTests {
 		assertFalse(((MiniMaxTestNode)tree.Find(new MiniMaxTestNode("child3k", 9))).WasVisited());
 		assertFalse(((MiniMaxTestNode)tree.Find(new MiniMaxTestNode("child3d", 2))).WasVisited());
 		assertFalse(((MiniMaxTestNode)tree.Find(new MiniMaxTestNode("child3f", 1))).WasVisited());
+	}
+	
+	@Test
+	public void testGetEmptyParents() {
+		MiniMax emptyTree = new MiniMax(new MiniMaxNode("empty tree", 0));
+		
+		List<MiniMaxNode> emptyParents = emptyTree.GetEmptyParents();
+		assertEquals(1, emptyParents.size());
+		assertTrue(emptyParents.contains(emptyTree.GetHead()));
+		
+		emptyParents = tree.GetEmptyParents();
+		assertEquals(12, emptyParents.size());
 	}
 }

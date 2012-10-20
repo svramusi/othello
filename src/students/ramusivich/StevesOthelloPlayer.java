@@ -31,7 +31,6 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		
 		for(GameState state : successors)
 		{
-			log("adding: " + state.toString());
 			children.add(new MiniMaxNode(state, state.getScore(state.getCurrentPlayer())));
 		}
 		
@@ -45,26 +44,41 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	}
 
 	public Square getMove(GameState currentState, Date deadline) {
+		//START A NEW TREE EVERY TIME
+		tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
+
+		Square nextMove = null;
+		MiniMaxNode node = null;
 		
-		
-		Square square = StevesDecisionMaker(currentState);
-		
-		/* register this as our current best move; if there is a deadline and we don't reach it,
-		 * then registering the move will make sure that that is the move we take.
-		 * If we reach the deadline and we neither registered a move nor returned from this
-		 * function, then a move will be chosen for us at random. */
-		this.registerCurrentBestMove(square);
-		
-		if(deadline != null)
-			log("I have " + this.getMillisUntilDeadline() + "ms remaining until the deadline.");
-		
+		//NEED TO FIND A BETTER WAY TO DO THIS!
+		while(this.getMillisUntilDeadline() > 300)
+		{
+			node = tree.GetEmptyParents().get(0);
+			
+			log("finding successors of: " + node.toString());
+			
+			AbstractSet<GameState> successors = ((GameState)node.GetObject()).getSuccessors();
+			List<MiniMaxNode> children = new ArrayList<MiniMaxNode>();
+			
+			for(GameState state : successors)
+			{
+				children.add(new MiniMaxNode(state, state.getScore(state.getCurrentPlayer())));
+			}
+			
+			tree.SetChildren(node, children);
+			
+			nextMove = ((GameState)tree.AlphaBetaSearch().GetObject()).getPreviousMove();
+			log("setting current best move: " + nextMove.toString());
+			log("time left: " + this.getMillisUntilDeadline());
+			this.registerCurrentBestMove(nextMove);
+		}
 		
 		/* registerCurrentBestMove(...) can be called multiple times to reset the current best
 		 * move before returning from this function. */
 		
 		/* return the move that we have chosen */
-		log("Example -- player is moving to " + square + "...");
-		return square;
+		log("Example -- player is moving to " + nextMove + "...");
+		return nextMove;
 	}
 
 }
