@@ -5,7 +5,7 @@ import java.util.Queue;
 import java.util.LinkedList;
 import java.lang.reflect.*;
 
-import tests.othello.MiniMaxTests;
+//import tests.othello.MiniMaxTests;
 
 public class MiniMax {
 	
@@ -119,6 +119,7 @@ public class MiniMax {
 
 	private void SetVisited(MiniMaxNode node)
 	{
+		/*
 		//Use reflection to determine if there is a SetVisited method
 		//This is necessary for the unit testing to test the alpha beta tree
 		try{
@@ -131,6 +132,7 @@ public class MiniMax {
 		} catch  (InvocationTargetException e) {
 			//System.out.println("Caught invocation target exception on " + node.toString());
 		}
+		*/
 	}
 	
 	public boolean TerminalTest(MiniMaxNode node)

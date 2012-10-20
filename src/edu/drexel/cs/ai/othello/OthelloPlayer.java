@@ -88,7 +88,7 @@ public abstract class OthelloPlayer {
 		return tempMove;
 	}
 
-	void setLogger(Logger logger) {
+	protected void setLogger(Logger logger) {
 		this.logger = logger;
 	}
 
