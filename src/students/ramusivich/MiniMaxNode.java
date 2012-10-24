@@ -64,7 +64,10 @@ public class MiniMaxNode {
 		
 		MiniMaxNode node = (MiniMaxNode)o;
 		
-		return this.GetObject().equals(node.GetObject()) && this.GetValue() == node.GetValue();
+		//return this.GetObject().equals(node.GetObject()) && this.GetValue() == node.GetValue();
+		
+		//Do we care about the values being equal?
+		return this.GetObject().equals(node.GetObject());
 	}
 	
 	public String toString()

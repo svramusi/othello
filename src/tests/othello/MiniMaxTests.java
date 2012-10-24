@@ -14,7 +14,6 @@ import students.ramusivich.MiniMax;
 
 public class MiniMaxTests {
 	
-	
 	/*
 	 * MAX	MIN			MAX
 	 * 								child3a, 3
@@ -218,5 +217,75 @@ public class MiniMaxTests {
 		
 		emptyParents = tree.GetEmptyParents();
 		assertEquals(12, emptyParents.size());
+	}
+	
+	@Test
+	public void testFindEmptyParents() {
+		List<MiniMaxNode> emptyParents = tree.FindEmptyParents();
+		
+		assertEquals(12, emptyParents.size());
+
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3a", 3)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3b", 5)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3c", 9)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3d", 2)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3e", 7)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3f", 1)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3g", 6)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3h", 8)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3i", 2)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3j", 4)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3k", 9)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3l", 1)));
+	}
+
+	@Test
+	public void testCount() {
+		assertEquals(21,tree.Count());
+	}
+	
+	@Test
+	public void testSetNewHead() {
+		MiniMaxNode newHead = new MiniMaxNode("child1a", 0);
+		
+
+		assertEquals(21,tree.Count());
+		
+		try
+		{
+			tree.SetNewHead(newHead);
+		} catch (Exception e)
+		{
+			fail("Caught unknown exception: " + e.getMessage());
+		}
+
+		MiniMaxNode head = tree.GetHead();
+		assertEquals(head, new MiniMaxNode("child1a", 0));
+		assertNull(head.GetParent());
+
+		assertEquals(10,tree.Count());
+
+		List<MiniMaxNode> emptyParents = tree.GetEmptyParents();
+		assertEquals(6, emptyParents.size());
+
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3a", 3)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3b", 5)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3c", 9)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3d", 2)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3e", 7)));
+		assertTrue(emptyParents.contains(new MiniMaxNode("child3f", 1)));
+	}
+	
+	@Test
+	public void testSetHeadToNonExistantNode() {
+		try
+		{
+			tree.SetNewHead(new MiniMaxNode("non existant node", -10));
+			fail("Should have thrown error on non existant node!");
+		} catch (Exception e)
+		{
+			assertTrue(e.getMessage().contains("No such node"));
+		}
+		
 	}
 }

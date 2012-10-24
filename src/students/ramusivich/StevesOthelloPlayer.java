@@ -3,15 +3,18 @@ package students.ramusivich;
 import edu.drexel.cs.ai.othello.*;
 
 import java.util.AbstractSet;
-import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
 
+import java.io.*;
 
 public class StevesOthelloPlayer extends OthelloPlayer {
 	
 	private MiniMax tree;
+
+	private static final double CORNER_SCORE = 100;
+	private static final double NEXT_TO_CORNER_SCORE = -500;
 	
 	public StevesOthelloPlayer(String name)
 	{
@@ -19,33 +22,54 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		tree = null;
 	}
 	
-	private Square StevesDecisionMaker(GameState currentState)
+	//http://radagast.se/othello/howto.html
+	private double heuristic(GameState state)
 	{
-		MiniMaxNode node = new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer()));
+		double score = 0;
+		score += state.getScore(state.getCurrentPlayer());
 		
-		if(tree == null)
-			tree = new MiniMax(node);
+		Square previousMove = state.getPreviousMove();
 		
-		AbstractSet<GameState> successors = currentState.getSuccessors();
-		List<MiniMaxNode> children = new ArrayList<MiniMaxNode>();
+		//Favor corner squares
+		if(IsCorner(previousMove))
+			score += CORNER_SCORE;
 		
-		for(GameState state : successors)
-		{
-			children.add(new MiniMaxNode(state, state.getScore(state.getCurrentPlayer())));
-		}
+		//Avoid giving your opponent the corner square
+		if(IsNextToCorner(previousMove))
+			score += NEXT_TO_CORNER_SCORE;
 		
-		tree.SetChildren(node, children);
-		
-		GameState result = (GameState)tree.AlphaBetaSearch().GetObject();
-		
-		log("result: " + result.toString());
-			
-		return result.getPreviousMove();
+		return score;
 	}
 
 	public Square getMove(GameState currentState, Date deadline) {
-		//START A NEW TREE EVERY TIME
-		tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
+		
+		if(tree == null)
+			tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
+		else
+		{
+			try{
+				BufferedWriter out = new BufferedWriter(new FileWriter("output.txt", true));
+				
+				out.write("\n---------------------------------------------------------------");
+				out.write("\ncount before setting a new head: " + tree.Count());
+				
+				try{
+					tree.SetNewHead(new MiniMaxNode(currentState, 0));
+				}
+				catch(Exception e)
+				{
+					tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
+					out.write("\n\nFailed to update head to: " + currentState.toString());
+				}
+
+				out.write("\ncount after setting a new head: " + tree.Count());
+				
+				out.close();
+			} catch (Exception e)
+			{
+				System.out.println("CAUGHT ERROR: " + e.getMessage());
+			}
+		}
 
 		Square nextMove = null;
 		MiniMaxNode node = null;
@@ -62,7 +86,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			
 			for(GameState state : successors)
 			{
-				children.add(new MiniMaxNode(state, state.getScore(state.getCurrentPlayer())));
+				children.add(new MiniMaxNode(state, heuristic(state)));
 			}
 			
 			tree.SetChildren(node, children);
@@ -73,12 +97,75 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			this.registerCurrentBestMove(nextMove);
 		}
 		
-		/* registerCurrentBestMove(...) can be called multiple times to reset the current best
-		 * move before returning from this function. */
-		
 		/* return the move that we have chosen */
 		log("Example -- player is moving to " + nextMove + "...");
 		return nextMove;
 	}
+	
+	public boolean IsCorner(Square s)
+	{
+		int row = s.getRow();
+		int col = s.getCol();
+		
+		if(row == 0)
+		{
+			if(col == 0)
+				return true;
+			else if(col == 7)
+				return true;
+			else
+				return false;
+		}
 
+		else if(row == 7)
+		{
+			if(col == 0)
+				return true;
+			else if(col == 7)
+				return true;
+			else
+				return false;
+		}
+		else
+			return false;
+	}
+	
+	public boolean IsNextToCorner(Square s)
+	{
+		int row = s.getRow();
+		int col = s.getCol();
+
+		if(row == 0)
+		{
+			if(col == 1 || col == 6)
+				return true;
+			else
+				return false;
+		}
+		else if(row == 1)
+		{
+			if(col == 0 || col == 1 || col == 6 || col ==7)
+				return true;
+			else
+				return false;
+		}
+		else if(row == 6)
+		{
+			if(col == 0 || col == 1 || col == 6 || col == 7)
+				return true;
+			else
+				return false;
+		}
+		else if(row == 7)
+		{
+			if(col == 1 || col == 6)
+				return true;
+			else
+				return false;
+		}
+		else
+		{
+			return false;
+		}
+	}
 }

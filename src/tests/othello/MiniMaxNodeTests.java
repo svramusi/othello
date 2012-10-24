@@ -34,8 +34,8 @@ public class MiniMaxNodeTests {
 	public void testEquals() {
 		assertTrue(node.equals(node));
 		assertTrue(node.equals(new MiniMaxNode("object name", 1)));
+		assertTrue(node.equals(new MiniMaxNode("object name", 2)));
 		assertFalse(node.equals(new MiniMaxNode("object name1", 1)));
-		assertFalse(node.equals(new MiniMaxNode("object name", 2)));
 	}
 
 	@Test

@@ -25,6 +25,25 @@ public class MiniMax {
 		return head;
 	}
 	
+	public void SetNewHead(MiniMaxNode newHead) throws Exception
+	{
+		MiniMaxNode node = Find(newHead);
+		if(node == null)
+		{
+			throw new Exception("No such node: " + newHead.toString());
+		}
+		else
+		{
+			this.head = node;
+			this.head.parent = null;
+			
+			//Rather than figuring out which empty parents are no long valid,
+			//Just clear the list and start over.  The cost is minimal.
+			emptyParents.clear();
+			emptyParents.addAll(FindEmptyParents());
+		}
+	}
+	
 	public List<MiniMaxNode> GetEmptyParents()
 	{
 		return emptyParents;
@@ -66,6 +85,50 @@ public class MiniMax {
 			
 			return Find(nodeToFind, queue);
 		}
+	}
+	
+	public List<MiniMaxNode> FindEmptyParents()
+	{
+		List<MiniMaxNode> emptyParents = new ArrayList<MiniMaxNode>();
+		
+		Queue<MiniMaxNode> queue = new LinkedList<MiniMaxNode>();
+		queue.add(head);
+		
+		while(!queue.isEmpty())
+		{
+			MiniMaxNode node = queue.poll();
+			
+			List<MiniMaxNode> children = node.GetChildren();
+			
+			if(children.size() == 0)
+				emptyParents.add(node);
+			else
+			{
+				for(MiniMaxNode child : children)
+					queue.add(child);
+			}
+			
+		}
+		
+		return emptyParents;
+	}
+
+	
+	public int Count()
+	{
+		Queue<MiniMaxNode> queue = new LinkedList<MiniMaxNode>();
+		queue.add(head);
+		
+		int count = 0;
+		
+		while(!queue.isEmpty())
+		{
+			count++;
+			for(MiniMaxNode child : queue.poll().GetChildren())
+				queue.add(child);
+		}
+		
+		return count;
 	}
 	
 	public MiniMaxNode AlphaBetaSearch()
