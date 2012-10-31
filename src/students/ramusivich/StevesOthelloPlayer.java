@@ -96,7 +96,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		}
 		
 		/* return the move that we have chosen */
-		log("Example -- player is moving to " + nextMove + "...");
+		log("Steve's player is moving to " + nextMove);
 		return nextMove;
 	}
 	
