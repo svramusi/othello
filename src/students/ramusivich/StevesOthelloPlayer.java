@@ -48,10 +48,10 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		else
 		{
 			try{
-				BufferedWriter out = new BufferedWriter(new FileWriter("output.txt", true));
+				//BufferedWriter out = new BufferedWriter(new FileWriter("output.txt", true));
 				
-				out.write("\n---------------------------------------------------------------");
-				out.write("\ncount before setting a new head: " + tree.Count());
+				//out.write("\n---------------------------------------------------------------");
+				//out.write("\ncount before setting a new head: " + tree.Count());
 				
 				try{
 					tree.SetNewHead(new MiniMaxNode(currentState, 0));
@@ -59,12 +59,12 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 				catch(Exception e)
 				{
 					tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
-					out.write("\n\nFailed to update head to: " + currentState.toString());
+					//out.write("\n\nFailed to update head to: " + currentState.toString());
 				}
 
-				out.write("\ncount after setting a new head: " + tree.Count());
+				//out.write("\ncount after setting a new head: " + tree.Count());
 				
-				out.close();
+				//out.close();
 			} catch (Exception e)
 			{
 				System.out.println("CAUGHT ERROR: " + e.getMessage());
@@ -75,11 +75,9 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		MiniMaxNode node = null;
 		
 		//NEED TO FIND A BETTER WAY TO DO THIS!
-		while(this.getMillisUntilDeadline() > 300)
+		while(this.getMillisUntilDeadline() > 500 && tree.GetEmptyParents().size() > 0)
 		{
 			node = tree.GetEmptyParents().get(0);
-			
-			log("finding successors of: " + node.toString());
 			
 			AbstractSet<GameState> successors = ((GameState)node.GetObject()).getSuccessors();
 			List<MiniMaxNode> children = new ArrayList<MiniMaxNode>();
@@ -92,8 +90,8 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			tree.SetChildren(node, children);
 			
 			nextMove = ((GameState)tree.AlphaBetaSearch().GetObject()).getPreviousMove();
-			log("setting current best move: " + nextMove.toString());
-			log("time left: " + this.getMillisUntilDeadline());
+			//log("setting current best move: " + nextMove.toString());
+			//log("time left: " + this.getMillisUntilDeadline());
 			this.registerCurrentBestMove(nextMove);
 		}
 		
