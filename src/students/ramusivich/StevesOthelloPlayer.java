@@ -1,13 +1,12 @@
 package students.ramusivich;
 
 import edu.drexel.cs.ai.othello.*;
+import edu.drexel.cs.ai.othello.GameState.Player;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Date;
-
-import java.io.*;
 
 public class StevesOthelloPlayer extends OthelloPlayer {
 	
@@ -22,7 +21,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		tree = null;
 	}
 	
-	//http://radagast.se/othello/howto.html
+	//heuristic ideas taken from: http://radagast.se/othello/howto.html
 	private double heuristic(GameState state)
 	{
 		double score = 0;
@@ -35,7 +34,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			score += CORNER_SCORE;
 		
 		//Avoid giving your opponent the corner square
-		if(IsNextToCorner(previousMove))
+		if(isNextToCorner(previousMove))
 			score += NEXT_TO_CORNER_SCORE;
 		
 		return score;
@@ -100,10 +99,10 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		return nextMove;
 	}
 	
-	public boolean IsCorner(Square s)
+	public boolean IsCorner(Square square)
 	{
-		int row = s.getRow();
-		int col = s.getCol();
+		int row = square.getRow();
+		int col = square.getCol();
 		
 		if(row == 0)
 		{
@@ -128,10 +127,10 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			return false;
 	}
 	
-	public boolean IsNextToCorner(Square s)
+	public boolean isNextToCorner(Square square)
 	{
-		int row = s.getRow();
-		int col = s.getCol();
+		int row = square.getRow();
+		int col = square.getCol();
 
 		if(row == 0)
 		{
@@ -165,5 +164,89 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		{
 			return false;
 		}
+	}
+	
+	public boolean IsSquareEmpty(GameState gameState, int row, int col)
+	{
+		Player cornerOwner = gameState.getSquare(row, col);
+		if(cornerOwner == Player.EMPTY)
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean isCornerEmpty(GameState gameState, Square square)
+	{
+		int row = square.getRow();
+		int col = square.getCol();
+		
+		if(row == 0)
+		{
+			if(col == 1)
+			{
+				return IsSquareEmpty(gameState, 0, 0);
+			}
+			else if(col == 6)
+			{
+				return IsSquareEmpty(gameState, 0, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(row == 1)
+		{
+			if(col == 0 || col == 1)
+			{
+				return IsSquareEmpty(gameState, 0, 0);
+			}
+			else if(col == 6 || col == 7)
+			{
+				return IsSquareEmpty(gameState, 0, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(row == 6)
+		{
+			if(col == 0 || col == 1)
+			{
+				return IsSquareEmpty(gameState, 7, 0);
+			}
+			else if(col == 6 || col == 7)
+			{
+				return IsSquareEmpty(gameState, 7, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(row == 7)
+		{
+			if(col == 1)
+			{
+				return IsSquareEmpty(gameState, 7, 0);
+			}
+			else if(col == 6)
+			{
+				return IsSquareEmpty(gameState, 7, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else 
+		{
+			return false;
+		}
+	}
+
+	public boolean isNextToCornerPenalty(GameState gameState, Square square) {
+		return isNextToCorner(square) && isCornerEmpty(gameState, square);
 	}
 }
