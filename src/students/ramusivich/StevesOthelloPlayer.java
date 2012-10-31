@@ -13,7 +13,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	private MiniMax tree;
 
 	private static final double CORNER_SCORE = 100;
-	private static final double NEXT_TO_CORNER_SCORE = -500;
+	private static final double NEXT_TO_CORNER_PENALTY = -500;
 	
 	public StevesOthelloPlayer(String name)
 	{
@@ -34,8 +34,9 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			score += CORNER_SCORE;
 		
 		//Avoid giving your opponent the corner square
-		if(isNextToCorner(previousMove))
-			score += NEXT_TO_CORNER_SCORE;
+		//Only avoid if the corner is empty
+		if(isNextToCornerPenalty(state, previousMove))
+			score += NEXT_TO_CORNER_PENALTY;
 		
 		return score;
 	}
