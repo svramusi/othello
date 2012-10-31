@@ -15,7 +15,6 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 
 	private static final double CORNER_SCORE = 100;
 	private static final double NEXT_TO_CORNER_SCORE = -500;
-	private static final double TIME_TO_RUN_MINIMAX = 500;
 	
 	public StevesOthelloPlayer(String name)
 	{
@@ -43,6 +42,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	}
 
 	public Square getMove(GameState currentState, Date deadline) {
+		
 		if(tree == null)
 			tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
 		else
@@ -72,35 +72,12 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		}
 
 		Square nextMove = null;
+		MiniMaxNode node = null;
 		
 		//NEED TO FIND A BETTER WAY TO DO THIS!
 		while(this.getMillisUntilDeadline() > 500 && tree.GetEmptyParents().size() > 0)
 		{
-			getNextRowOfSuccessors();
-
-			nextMove = ((GameState)tree.AlphaBetaSearch().GetObject()).getPreviousMove();
-			//log("setting current best move: " + nextMove.toString());
-			//log("time left: " + this.getMillisUntilDeadline());
-			this.registerCurrentBestMove(nextMove);
-		}
-		
-		/* return the move that we have chosen */
-		log("Steve's agent is moving to " + nextMove + "...");
-		return nextMove;
-	}
-
-	private void getNextRowOfSuccessors() {
-		List<MiniMaxNode> emptyParents = tree.GetEmptyParents();
-		long longestTime = -1;
-		
-		MiniMaxNode node = null;
-		int initialEmptyParentsSize = emptyParents.size();
-		log("init empty parent size: " + initialEmptyParentsSize);
-		
-		for(int i = 0; i < initialEmptyParentsSize; i++)
-		{
-			if(this.getMillisUntilDeadline() < longestTime + TIME_TO_RUN_MINIMAX)
-				return;
+			node = tree.GetEmptyParents().get(0);
 			
 			AbstractSet<GameState> successors = ((GameState)node.GetObject()).getSuccessors();
 			List<MiniMaxNode> children = new ArrayList<MiniMaxNode>();
@@ -111,8 +88,6 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			}
 			
 			tree.SetChildren(node, children);
-
-			long endTime = new Date().getTime();
 			
 			nextMove = ((GameState)tree.AlphaBetaSearch().GetObject()).getPreviousMove();
 			//log("setting current best move: " + nextMove.toString());
