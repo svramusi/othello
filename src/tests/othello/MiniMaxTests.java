@@ -8,6 +8,7 @@ import org.junit.Test;
 import java.util.List;
 import java.util.ArrayList;
 
+import students.ramusivich.MiniMaxTestNode;
 import students.ramusivich.MiniMaxNode;
 import students.ramusivich.MiniMax;
 
@@ -53,27 +54,6 @@ public class MiniMaxTests {
 	
 	MiniMax tree;
 	
-	public class MiniMaxTestNode extends MiniMaxNode
-	{
-		private boolean visited;
-		
-		public MiniMaxTestNode(Object o, double value)
-		{
-			super(o, value);
-			this.visited = false;
-		}
-		
-		public void SetVisited()
-		{
-			this.visited = true;
-		}
-		
-		public boolean WasVisited()
-		{
-			return visited;
-		}
-	}
-
 	@Before
 	public void setUp() throws Exception {
 		tree = new MiniMax(new MiniMaxTestNode("head", 0));
