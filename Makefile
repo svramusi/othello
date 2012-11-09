@@ -1,3 +1,4 @@
+JAVA=java
 JAVAC=javac
 JAR=jar
 JDEBUGFLAGS=-O
@@ -16,7 +17,7 @@ PACKAGES=$(subst /,.,$(DIRS)) $(subst /,.,$(foreach student,$(STUDENTS),students
 JARS=lib/othello.jar $(foreach student,$(STUDENTS),lib/$(student).jar)
 
 .PHONY : all
-all : othello javadoc $(JARS)
+all : othello javadoc $(JARS) obfus
 
 othello : $(JARS)
 	@echo 'for i in lib/*.jar' > $@
@@ -51,6 +52,9 @@ lib/%.jar : lib $(wildcard src/students/%/*.java)
 	@echo "Main-Class: edu.drexel.cs.ai.othello.Othello" >> .manifest.tmp
 	$(JAR) cmf .manifest.tmp $@ -C classes students/$*
 	@rm -rf .manifest.tmp
+
+obfus: $(JARS)
+	$(JAVA) -jar proguard.jar @profile.pro
 
 .PHONY : clean
 clean :
