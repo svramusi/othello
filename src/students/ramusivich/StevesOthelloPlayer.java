@@ -41,7 +41,26 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		return score;
 	}
 
+	protected final long howMuchTimesLeft(Date currentDeadline) {
+		if(currentDeadline == null)
+			return 0;
+		else
+			return currentDeadline.getTime() - (new Date()).getTime();
+	}
+
+	public Date getDefaultTime() {
+		return new Date(System.currentTimeMillis() + 30000);
+	}
+
 	public Square getMove(GameState currentState, Date deadline) {
+		try {
+			if (deadline == null) {
+				deadline = getDefaultTime();
+			}
+
+		} catch (NullPointerException e) {
+			deadline = getDefaultTime();
+		}
 		
 		if(tree == null)
 			tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
@@ -75,7 +94,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		MiniMaxNode node = null;
 		
 		//NEED TO FIND A BETTER WAY TO DO THIS!
-		while(this.getMillisUntilDeadline() > 500 && tree.GetEmptyParents().size() > 0)
+		while(this.howMuchTimesLeft(deadline) > 500 && tree.GetEmptyParents().size() > 0)
 		{
 			node = tree.GetEmptyParents().get(0);
 			
@@ -91,7 +110,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			
 			nextMove = ((GameState)tree.AlphaBetaSearch().GetObject()).getPreviousMove();
 			//log("setting current best move: " + nextMove.toString());
-			//log("time left: " + this.getMillisUntilDeadline());
+			//log("time left: " + this.howMuchTimesLeft());
 			this.registerCurrentBestMove(nextMove);
 		}
 		
