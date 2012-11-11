@@ -384,10 +384,6 @@ public class Othello {
 			}
 		}
 
-
-		if (turnDuration < 0)
-			turnDuration = 30;
-
 		if(ui == null)
 			ui = new GraphicalUserInterface();
 
