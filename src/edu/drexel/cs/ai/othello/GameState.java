@@ -583,6 +583,19 @@ public class GameState implements Cloneable {
 		return newState;
 	}
 
+	//This is used for unit tests
+	//We don't care about checking to make sure it's valid, just do it!
+	public GameState forceMove(Square move) throws InvalidMoveException {
+		GameState newState = (GameState)clone();
+		Player player = getCurrentPlayer();
+		newState.move = move;
+
+		newState.board[move.row][move.col] = player;
+		newState.player = getOpponent(player);
+
+		return newState;
+	}
+
 	/**
 	 * Returns the previous state (or <code>null</code> if this is the
 	 * initial state).  This function may also return

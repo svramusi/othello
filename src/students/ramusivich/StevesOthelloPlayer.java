@@ -1,6 +1,7 @@
 package students.ramusivich;
 
 import edu.drexel.cs.ai.othello.*;
+import edu.drexel.cs.ai.othello.GameState.Player;
 
 import java.util.AbstractSet;
 import java.util.ArrayList;
@@ -14,12 +15,13 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	private MiniMax tree;
 
 	private static final double CORNER_SCORE = 100;
-	private static final double NEXT_TO_CORNER_SCORE = -500;
 
 	private static double longestMiniMaxRun;
 	private static double averageGetSuccessors;
 	private static double totalGetSuccessors;
 	private static double iterationsGetSuccessors;
+	private static final double NEXT_TO_CORNER_PENALTY = -500;
+	private Date deadline;
 	
 	public StevesOthelloPlayer(String name)
 	{
@@ -29,7 +31,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		averageGetSuccessors = 0;
 	}
 	
-	//http://radagast.se/othello/howto.html
+	//heuristic ideas taken from: http://radagast.se/othello/howto.html
 	private double heuristic(GameState state)
 	{
 		double score = 0;
@@ -42,13 +44,36 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			score += CORNER_SCORE;
 		
 		//Avoid giving your opponent the corner square
-		if(IsNextToCorner(previousMove))
-			score += NEXT_TO_CORNER_SCORE;
+		//Only avoid if the corner is empty
+		if(isNextToCornerPenalty(state, previousMove))
+			score += NEXT_TO_CORNER_PENALTY;
 		
 		return score;
 	}
 
+	protected final long howMuchTimesLeft() {
+		if(deadline == null)
+			return 0;
+		else
+			return deadline.getTime() - (new Date()).getTime();
+	}
+
+	public Date getDefaultTime() {
+		return new Date(System.currentTimeMillis() + 30000);
+	}
+
 	public Square getMove(GameState currentState, Date deadline) {
+		try {
+			if (deadline == null) {
+				deadline = getDefaultTime();
+			}
+
+		} catch (NullPointerException e) {
+			deadline = getDefaultTime();
+		}
+
+		this.deadline = deadline;
+		
 		if(tree == null)
 			tree = new MiniMax(new MiniMaxNode(currentState, currentState.getScore(currentState.getCurrentPlayer())));
 		else
@@ -88,7 +113,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		
 		/* return the move that we have chosen */
 		log("Steve's agent is moving to " + nextMove + "...");
-		log("time wasted: " + this.getMillisUntilDeadline());
+		log("time wasted: " + this.howMuchTimesLeft());
 		return nextMove;
 	}
 
@@ -115,7 +140,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		log("average successors: " + averageGetSuccessors);
 		log("longest minimax: " + longestMiniMaxRun);
 		
-		if(this.getMillisUntilDeadline() > averageGetSuccessors + (2 * longestMiniMaxRun))
+		if(this.howMuchTimesLeft() > averageGetSuccessors + (2 * longestMiniMaxRun))
 			return true;
 		else
 			return false;
@@ -131,7 +156,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		
 		for(int i = 0; i < initialEmptyParentsSize; i++)
 		{
-			if(this.getMillisUntilDeadline() < averageGetSuccessors)
+			if(this.howMuchTimesLeft() < averageGetSuccessors)
 				return;
 			
 			long startTime = new Date().getTime();
@@ -166,10 +191,10 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		}
 	}
 	
-	public boolean IsCorner(Square s)
+	public boolean IsCorner(Square square)
 	{
-		int row = s.getRow();
-		int col = s.getCol();
+		int row = square.getRow();
+		int col = square.getCol();
 		
 		if(row == 0)
 		{
@@ -194,10 +219,10 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			return false;
 	}
 	
-	public boolean IsNextToCorner(Square s)
+	public boolean isNextToCorner(Square square)
 	{
-		int row = s.getRow();
-		int col = s.getCol();
+		int row = square.getRow();
+		int col = square.getCol();
 
 		if(row == 0)
 		{
@@ -231,5 +256,89 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		{
 			return false;
 		}
+	}
+	
+	public boolean IsSquareEmpty(GameState gameState, int row, int col)
+	{
+		Player cornerOwner = gameState.getSquare(row, col);
+		if(cornerOwner == Player.EMPTY)
+			return true;
+		else
+			return false;
+	}
+	
+	public boolean isCornerEmpty(GameState gameState, Square square)
+	{
+		int row = square.getRow();
+		int col = square.getCol();
+		
+		if(row == 0)
+		{
+			if(col == 1)
+			{
+				return IsSquareEmpty(gameState, 0, 0);
+			}
+			else if(col == 6)
+			{
+				return IsSquareEmpty(gameState, 0, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(row == 1)
+		{
+			if(col == 0 || col == 1)
+			{
+				return IsSquareEmpty(gameState, 0, 0);
+			}
+			else if(col == 6 || col == 7)
+			{
+				return IsSquareEmpty(gameState, 0, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(row == 6)
+		{
+			if(col == 0 || col == 1)
+			{
+				return IsSquareEmpty(gameState, 7, 0);
+			}
+			else if(col == 6 || col == 7)
+			{
+				return IsSquareEmpty(gameState, 7, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else if(row == 7)
+		{
+			if(col == 1)
+			{
+				return IsSquareEmpty(gameState, 7, 0);
+			}
+			else if(col == 6)
+			{
+				return IsSquareEmpty(gameState, 7, 7);
+			}
+			else
+			{
+				return false;
+			}
+		}
+		else 
+		{
+			return false;
+		}
+	}
+
+	public boolean isNextToCornerPenalty(GameState gameState, Square square) {
+		return isNextToCorner(square) && isCornerEmpty(gameState, square);
 	}
 }
