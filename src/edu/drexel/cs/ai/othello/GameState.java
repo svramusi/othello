@@ -591,7 +591,6 @@ public class GameState implements Cloneable {
 		newState.move = move;
 
 		newState.board[move.row][move.col] = player;
-		newState.player = getOpponent(player);
 
 		return newState;
 	}
