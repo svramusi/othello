@@ -201,4 +201,66 @@ public class StevePlayerTests {
 		assertFalse(sp.isNextToCornerPenalty(gameState,new Square(6,6)));
 		assertFalse(sp.isNextToCornerPenalty(gameState,new Square(7,6)));
 	}
+	
+	@Test
+	public void testInitialFrontiers() {
+		assertEquals(2, sp.getFrontiers(gameState));
+	}
+	
+	@Test
+	public void testThreeFrontiers() {
+		gameState = gameState.forceMove(new Square(0, 0));
+		assertEquals(3, sp.getFrontiers(gameState));
+	}
+	
+	@Test
+	public void testIsFrontier() {
+		assertTrue(sp.isFrontier(gameState, 3, 3));
+		
+		for(int i = 0; i < 8; i++) {
+			gameState = gameState.forceMove(new Square(0, i));
+		}
+		assertTrue(sp.isFrontier(gameState, 0, 3));
+		
+		for(int i = 0; i < 8; i++) {
+			gameState = gameState.forceMove(new Square(1, i));
+		}
+		assertFalse(sp.isFrontier(gameState, 0, 3));
+	}
+	
+	@Test
+	public void testIsUpperEmpty() {
+		assertTrue(sp.isUpperEmpty(gameState, 3, 3));
+		assertFalse(sp.isUpperEmpty(gameState, 5, 3));
+		
+		assertFalse(sp.isUpperEmpty(gameState, 0, 0));
+		assertFalse(sp.isUpperEmpty(gameState, 0, 6));
+	}
+
+	@Test
+	public void testIsRightEmpty() {
+		assertTrue(sp.isRightEmpty(gameState, 3, 4));
+		assertFalse(sp.isRightEmpty(gameState, 3, 2));
+		
+		assertFalse(sp.isRightEmpty(gameState, 0, 7));
+		assertFalse(sp.isRightEmpty(gameState, 5, 7));
+	}
+
+	@Test
+	public void testIsLeftEmpty() {
+		assertTrue(sp.isLeftEmpty(gameState, 4, 3));
+		assertFalse(sp.isLeftEmpty(gameState, 3, 5));
+		
+		assertFalse(sp.isLeftEmpty(gameState, 0, 0));
+		assertFalse(sp.isLeftEmpty(gameState, 5, 0));
+	}
+
+	@Test
+	public void testIsLowerEmpty() {
+		assertTrue(sp.isLowerEmpty(gameState, 4, 4));
+		assertFalse(sp.isLowerEmpty(gameState, 2, 3));
+		
+		assertFalse(sp.isLowerEmpty(gameState, 7, 0));
+		assertFalse(sp.isLowerEmpty(gameState, 7, 5));
+	}
 }

@@ -12,7 +12,8 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	
 	private MiniMax tree;
 
-	private static final double CORNER_SCORE = 100;
+	private static final double CORNER_SCORE = 1000;
+	private static final double FRONTIER_PENALTY = -20;
 	private static final double NEXT_TO_CORNER_PENALTY = -500;
 	
 	public StevesOthelloPlayer(String name)
@@ -22,7 +23,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	}
 	
 	//heuristic ideas taken from: http://radagast.se/othello/howto.html
-	private double heuristic(GameState state)
+	private double heuristic(GameState state, GameState previousState)
 	{
 		double score = 0;
 		score += state.getScore(state.getCurrentPlayer());
@@ -37,6 +38,10 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		//Only avoid if the corner is empty
 		if(isNextToCornerPenalty(state, previousMove))
 			score += NEXT_TO_CORNER_PENALTY;
+		
+		//Want to minimize frontier
+		int newFrontiers = getFrontiers(state) - getFrontiers(previousState);
+		score += (newFrontiers * FRONTIER_PENALTY);
 		
 		return score;
 	}
@@ -103,7 +108,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			
 			for(GameState state : successors)
 			{
-				children.add(new MiniMaxNode(state, heuristic(state)));
+				children.add(new MiniMaxNode(state, heuristic(state, currentState)));
 			}
 			
 			tree.SetChildren(node, children);
@@ -268,5 +273,63 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 
 	public boolean isNextToCornerPenalty(GameState gameState, Square square) {
 		return isNextToCorner(square) && isCornerEmpty(gameState, square);
+	}
+
+	public int getFrontiers(GameState gameState) {
+		int fontierCount = 0;
+		
+		for(int row = 0; row < 8; row++) {
+			for(int col = 0; col < 8; col++) {
+				if(gameState.getSquare(row, col) == gameState.getCurrentPlayer()) {
+					if(isFrontier(gameState, row, col))
+						fontierCount++;
+				}
+			}
+		}
+			
+		return fontierCount;
+	}
+
+	public boolean isFrontier(GameState gameState, int row, int col) {
+		if(isUpperEmpty(gameState, row, col) || isRightEmpty(gameState, row, col) || isLeftEmpty(gameState, row, col) || isLowerEmpty(gameState, row, col))
+			return true;
+		else
+			return false;
+	}
+
+	public boolean isUpperEmpty(GameState gameState, int row, int col) {
+		if(row == 0)
+			return false;
+		else
+		{
+			return gameState.getSquare(row-1, col) == Player.EMPTY;
+		}
+	}
+
+	public boolean isRightEmpty(GameState gameState, int row, int col) {
+		if(col == 7)
+			return false;
+		else
+		{
+			return gameState.getSquare(row, col+1) == Player.EMPTY;
+		}
+	}
+
+	public boolean isLeftEmpty(GameState gameState, int row, int col) {
+		if(col == 0)
+			return false;
+		else
+		{
+			return gameState.getSquare(row, col-1) == Player.EMPTY;
+		}
+	}
+
+	public boolean isLowerEmpty(GameState gameState, int row, int col) {
+		if(row == 7)
+			return false;
+		else
+		{
+			return gameState.getSquare(row+1, col) == Player.EMPTY;
+		}
 	}
 }
