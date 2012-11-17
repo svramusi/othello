@@ -12,15 +12,17 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	
 	private MiniMax tree;
 
-	private static final double CORNER_SCORE = 1000;
-	private static final double FRONTIER_PENALTY = -20;
-	private static final double STONE_PENALTY = -20;
-	private static final double NEXT_TO_CORNER_PENALTY = -500;
+	private static final int CORNER_SCORE = 1000;
+	private static final int FRONTIER_PENALTY = -20;
+	private static final int NEXT_TO_CORNER_PENALTY = -500;
 	
+	private int STONE_PENALTY;
+
 	public StevesOthelloPlayer(String name)
 	{
 		super(name);
 		tree = null;
+    STONE_PENALTY = -20;
 	}
 	
 	//heuristic ideas taken from: http://radagast.se/othello/howto.html
