@@ -14,6 +14,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 
 	private static final double CORNER_SCORE = 1000;
 	private static final double FRONTIER_PENALTY = -20;
+	private static final double STONE_PENALTY = -20;
 	private static final double NEXT_TO_CORNER_PENALTY = -500;
 	
 	public StevesOthelloPlayer(String name)
@@ -26,7 +27,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	private double heuristic(GameState state, GameState previousState)
 	{
 		double score = 0;
-		score += state.getScore(state.getCurrentPlayer());
+		score += (state.getScore(state.getCurrentPlayer()) * STONE_PENALTY);
 		
 		Square previousMove = state.getPreviousMove();
 		
