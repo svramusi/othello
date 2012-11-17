@@ -97,6 +97,7 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 
 		Square nextMove = null;
 		MiniMaxNode node = null;
+		GameState bestBoard = null;
 		
 		//NEED TO FIND A BETTER WAY TO DO THIS!
 		while(this.howMuchTimesLeft(deadline) > 500 && tree.GetEmptyParents().size() > 0)
@@ -112,15 +113,16 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 			}
 			
 			tree.SetChildren(node, children);
-			
-			nextMove = ((GameState)tree.AlphaBetaSearch().GetObject()).getPreviousMove();
+
+			bestBoard = ((GameState)tree.AlphaBetaSearch().GetObject());
+			nextMove = bestBoard.getPreviousMove();
 			//log("setting current best move: " + nextMove.toString());
 			//log("time left: " + this.howMuchTimesLeft());
 			this.registerCurrentBestMove(nextMove);
 		}
 		
 		/* return the move that we have chosen */
-		log("Steve's player is moving to " + nextMove);
+		log("Steve's player is moving to " + nextMove + " with a cost of: " + heuristic(bestBoard, bestBoard));
 		return nextMove;
 	}
 	
