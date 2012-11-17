@@ -133,7 +133,8 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 		}
 		
 		/* return the move that we have chosen */
-		log("Steve's player is moving to " + nextMove + " with a cost of: " + heuristic(bestBoard, bestBoard));
+		//log("Steve's player is moving to " + nextMove + " with a cost of: " + heuristic(bestBoard, bestBoard));
+		log("Steve's player is moving to " + nextMove);
 		return nextMove;
 	}
 	
