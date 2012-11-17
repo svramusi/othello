@@ -29,7 +29,15 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	private double heuristic(GameState state, GameState previousState)
 	{
 		double score = 0;
-		score += (state.getScore(state.getCurrentPlayer()) * STONE_PENALTY);
+    int numberOfStones = state.getScore(state.getCurrentPlayer());
+
+    //Minimize in start game
+    if(numberOfStones < 32)
+      STONE_PENALTY = -20;
+    else //Maximize in end game
+      STONE_PENALTY = 10;
+
+		score += (numberOfStones * STONE_PENALTY);
 		
 		Square previousMove = state.getPreviousMove();
 		
