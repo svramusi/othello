@@ -22,20 +22,20 @@ public class StevesOthelloPlayer extends OthelloPlayer {
 	{
 		super(name);
 		tree = null;
-    STONE_PENALTY = -20;
+		STONE_PENALTY = -20;
 	}
 	
 	//heuristic ideas taken from: http://radagast.se/othello/howto.html
 	private double heuristic(GameState state, GameState previousState)
 	{
 		double score = 0;
-    int numberOfStones = state.getScore(state.getCurrentPlayer());
-
-    //Minimize in start game
-    if(numberOfStones < 32)
-      STONE_PENALTY = -20;
-    else //Maximize in end game
-      STONE_PENALTY = 10;
+		int numberOfStones = state.getScore(state.getCurrentPlayer());
+		
+	    //Minimize in start game
+	    if(numberOfStones < 32)
+	      STONE_PENALTY = -20;
+	    else //Maximize in end game
+	      STONE_PENALTY = 10;
 
 		score += (numberOfStones * STONE_PENALTY);
 		
